@@ -35,7 +35,7 @@
     /* キャラクター表示部 */
     .char-box { text-align: center; width: 100%; }
     .char-avatar { font-size: 4.5rem; margin: 5px 0; transition: transform 0.3s; }
-    .speech-bubble { background: #74b9ff; color: white; padding: 12px; border-radius: 12px; font-weight: bold; position: relative; min-height: 70px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; }
+    .speech-bubble { background: #74b9ff; color: white; padding: 12px; border-radius: 12px; font-weight: bold; position: relative; min-height: 70px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; text-align: center; }
     
     .btn-next { margin-top: 15px; width: 100%; padding: 12px; background: #0984e3; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: none; }
     .btn-reset { margin-top: 10px; padding: 6px 12px; background: #b2bec3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
@@ -64,20 +64,20 @@
     <!-- 右側：パラメーターとキャラクター -->
     <div class="right-panel">
       <div class="meter-container">
-        <div class="meter-label" style="color:#d63031;"><span>赤（からだをつくる）</span><span id="num-red">0pt</span></div>
+        <div class="meter-label" style="color:#d63031;"><span>赤（からだをつくる）</span><span id="num-red">0pt / 100pt</span></div>
         <div class="meter-bar"><div id="meter-red" class="meter-fill fill-red"></div></div>
 
-        <div class="meter-label" style="color:#e17055;"><span>黄（エネルギー）</span><span id="num-yellow">0pt</span></div>
+        <div class="meter-label" style="color:#e17055;"><span>黄（エネルギー）</span><span id="num-yellow">0pt / 100pt</span></div>
         <div class="meter-bar"><div id="meter-yellow" class="meter-fill fill-yellow"></div></div>
 
-        <div class="meter-label" style="color:#00b894;"><span>緑（ちょうしを整える）</span><span id="num-green">0pt</span></div>
+        <div class="meter-label" style="color:#00b894;"><span>緑（ちょうしを整える）</span><span id="num-green">0pt / 100pt</span></div>
         <div class="meter-bar"><div id="meter-green" class="meter-fill fill-green"></div></div>
       </div>
 
       <div class="char-box">
         <div id="char-avatar" class="char-avatar">🧍</div>
         <div id="speech-bubble" class="speech-bubble">
-          今週もバランスよく食べて元気にすごそう！
+          今週も赤・黄・緑をそろえて元気にすごそう！
         </div>
       </div>
 
@@ -89,28 +89,28 @@
 <script>
   const days = ["1日目：月ようび", "2日目：火ようび", "3日目：水ようび", "4日目：木ようび", "5日目：金ようび"];
 
-  // メニュープール（指定メニュー）
+  // 1回の摂取で20pt加算（5日でちょうど100pt）
   const menuYellow = [
-    { name: "🍚 ごはん（黄）", add: { red: 0, yellow: 40, green: 0 }, msg: "エネルギー満タン！" },
-    { name: "🍞 パン（黄）", add: { red: 0, yellow: 40, green: 0 }, msg: "ふわふわパンで元気に！" },
-    { name: "🍙 わかめごはん（黄）", add: { red: 0, yellow: 40, green: 5 }, msg: "わかめご飯はおいしいね！" }
+    { name: "🍚 ごはん（黄）", color: "yellow", pts: 20, msg: "エネルギー満タン！" },
+    { name: "🍞 パン（黄）", color: "yellow", pts: 20, msg: "ふわふわパンで元気に！" },
+    { name: "🍙 わかめごはん（黄）", color: "yellow", pts: 20, msg: "わかめご飯はおいしいね！" }
   ];
 
   const menuRed = [
-    { name: "🍗 からあげ（赤）", add: { red: 40, yellow: 10, green: 0 }, msg: "からあげパワーで筋肉モリモリ！" },
-    { name: "🐟 やきざかな（赤）", add: { red: 40, yellow: 0, green: 0 }, msg: "お魚で骨も丈夫に！" },
-    { name: "🍳 たまごやき（赤）", add: { red: 35, yellow: 5, green: 0 }, msg: "栄養満点のたまごやき！" },
-    { name: "🍤 さけフライ（赤）", add: { red: 40, yellow: 10, green: 0 }, msg: "サクサクのさけフライ！" },
-    { name: "🥩 ハンバーグ（赤）", add: { red: 40, yellow: 10, green: 0 }, msg: "みんな大好きハンバーグ！" }
+    { name: "🍗 からあげ（赤）", color: "red", pts: 20, msg: "からあげで筋肉モリモリ！" },
+    { name: "🐟 やきざかな（赤）", color: "red", pts: 20, msg: "お魚で骨も丈夫に！" },
+    { name: "🍳 たまごやき（赤）", color: "red", pts: 20, msg: "栄養満点のたまごやき！" },
+    { name: "🍤 さけフライ（赤）", color: "red", pts: 20, msg: "サクサクのさけフライ！" },
+    { name: "🥩 ハンバーグ（赤）", color: "red", pts: 20, msg: "みんな大好きハンバーグ！" }
   ];
 
   const menuGreen = [
-    { name: "🥬 いそかあえ（緑）", add: { red: 0, yellow: 0, green: 40 }, msg: "いそかあえで調子が整ったよ！" },
-    { name: "🥗 サラダ（緑）", add: { red: 0, yellow: 0, green: 40 }, msg: "シャキシャキ野菜でビタミン補給！" },
-    { name: "🥕 やさいスープ（緑）", add: { red: 0, yellow: 0, green: 40 }, msg: "あったかスープで元気いっぱい！" },
-    { name: "🥣 おみそ汁（緑）", add: { red: 5, yellow: 0, green: 35 }, msg: "おみそ汁でホッとするね！" },
-    { name: "🥢 ナムル（緑）", add: { red: 0, yellow: 0, green: 40 }, msg: "ナムルで野菜バリアバッチリ！" },
-    { name: "🪵 きんぴらごぼう（緑）", add: { red: 0, yellow: 0, green: 40 }, msg: "食物繊維たっぷりのきんぴら！" }
+    { name: "🥬 いそかあえ（緑）", color: "green", pts: 20, msg: "いそかあえで調子が整ったよ！" },
+    { name: "🥗 サラダ（緑）", color: "green", pts: 20, msg: "シャキシャキ野菜でビタミン補給！" },
+    { name: "🥕 やさいスープ（緑）", color: "green", pts: 20, msg: "あったかスープで元気いっぱい！" },
+    { name: "🥣 おみそ汁（緑）", color: "green", pts: 20, msg: "おみそ汁でホッとするね！" },
+    { name: "🥢 ナムル（緑）", color: "green", pts: 20, msg: "ナムルで野菜バリアバッチリ！" },
+    { name: "🪵 きんぴらごぼう（緑）", color: "green", pts: 20, msg: "食物繊維たっぷりのきんぴら！" }
   ];
 
   let currentDay = 0;
@@ -129,21 +129,21 @@
     totalYellow = 0;
     totalGreen = 0;
     
-    // 5日分のランダム基本給食（ランダムに1〜2個登場）
+    // 5日分のランダム基本給食（毎回赤・黄・緑の中からランダムに2色が出される）
     dailyBases = [];
     for (let i = 0; i < 5; i++) {
-      const randomYellow = shuffle(menuYellow)[0];
-      const randomRed = shuffle(menuRed)[0];
-      const randomGreen = shuffle(menuGreen)[0];
+      const yellow = shuffle(menuYellow)[0];
+      const red = shuffle(menuRed)[0];
+      const green = shuffle(menuGreen)[0];
 
-      const type = Math.floor(Math.random() * 4);
-      let items = [];
-      if (type === 0) items = [randomYellow, randomRed];
-      else if (type === 1) items = [randomYellow, randomGreen];
-      else if (type === 2) items = [randomRed, randomGreen];
-      else items = [randomYellow]; // ごはんだけの日
+      // 3色のうちランダムに2色を基本給食にする
+      const comboType = i % 3; 
+      let baseItems = [];
+      if (comboType === 0) baseItems = [yellow, red];    // 足りないのは「緑」
+      else if (comboType === 1) baseItems = [yellow, green]; // 足りないのは「赤」
+      else baseItems = [red, green];                       // 足りないのは「黄」
 
-      dailyBases.push(items);
+      dailyBases.push(shuffle(baseItems));
     }
 
     loadDay(currentDay);
@@ -158,9 +158,7 @@
     const currentBase = dailyBases[dayIndex];
     currentBase.forEach(item => {
       tray.innerHTML += `<div class="food-tag">${item.name}</div>`;
-      totalRed += item.add.red;
-      totalYellow += item.add.yellow;
-      totalGreen += item.add.green;
+      addPoints(item.color, item.pts);
     });
 
     updateMetersAndAvatar();
@@ -182,14 +180,15 @@
       choicesBox.appendChild(btn);
     });
 
-    // 「食べない」選択肢
+    // 「食べない」ボタン
     const skipBtn = document.createElement('button');
     skipBtn.className = 'btn-choice btn-skip';
     skipBtn.innerText = '❌ 食べない';
     skipBtn.onclick = () => selectOption({
       name: "食べない",
-      add: { red: 0, yellow: 0, green: 0 },
-      msg: "何も足さなかったよ。お腹が空いちゃうかも…？"
+      color: "none",
+      pts: 0,
+      msg: "何も追加しなかったよ。栄養足りるかな…？"
     });
     choicesBox.appendChild(skipBtn);
 
@@ -198,10 +197,14 @@
     document.getElementById('question-text').innerText = "あと１つ足すなら？";
   }
 
+  function addPoints(color, pts) {
+    if (color === 'red') totalRed += pts;
+    if (color === 'yellow') totalYellow += pts;
+    if (color === 'green') totalGreen += pts;
+  }
+
   function selectOption(selectedOpt) {
-    totalRed += selectedOpt.add.red;
-    totalYellow += selectedOpt.add.yellow;
-    totalGreen += selectedOpt.add.green;
+    addPoints(selectedOpt.color, selectedOpt.pts);
 
     document.getElementById('speech-bubble').innerText = selectedOpt.msg;
     updateMetersAndAvatar();
@@ -223,64 +226,68 @@
     loadDay(currentDay);
   }
 
-  // リアルタイムの体型・状態変化ロジック
+  // リアルタイムの体型・状態判定
   function updateMetersAndAvatar() {
-    const redPct = Math.min(100, (totalRed / 250) * 100);
-    const yellowPct = Math.min(100, (totalYellow / 250) * 100);
-    const greenPct = Math.min(100, (totalGreen / 250) * 100);
+    const redPct = Math.min(100, totalRed);
+    const yellowPct = Math.min(100, totalYellow);
+    const greenPct = Math.min(100, totalGreen);
 
     document.getElementById('meter-red').style.width = redPct + '%';
     document.getElementById('meter-yellow').style.width = yellowPct + '%';
     document.getElementById('meter-green').style.width = greenPct + '%';
 
-    document.getElementById('num-red').innerText = totalRed + 'pt';
-    document.getElementById('num-yellow').innerText = totalYellow + 'pt';
-    document.getElementById('num-green').innerText = totalGreen + 'pt';
+    document.getElementById('num-red').innerText = `${totalRed}pt / 100pt`;
+    document.getElementById('num-yellow').innerText = `${totalYellow}pt / 100pt`;
+    document.getElementById('num-green').innerText = `${totalGreen}pt / 100pt`;
 
     const avatar = document.getElementById('char-avatar');
 
-    // 体型・健康状態の判定
-    if (totalYellow >= 160) {
-      avatar.innerText = "🫃"; // 太り気味
-    } else if (totalYellow < 60 && totalRed < 60 && totalGreen < 60 && currentDay >= 1) {
-      avatar.innerText = "💀"; // 食べなさすぎ（激ヤセ・飢餓）
-    } else if (totalYellow < 70 && totalGreen >= 80) {
-      avatar.innerText = "😫"; // 緑は多いがエネルギー（黄）不足でヘロヘロ・つかれた
-    } else if (totalYellow < 70) {
-      avatar.innerText = "🥀"; // エネルギー不足で元気が出ない
-    } else if (totalGreen >= 90 && totalRed >= 80 && totalYellow >= 90) {
-      avatar.innerText = "🦸‍♂️"; // バランス完璧
-    } else if (totalGreen >= 70 && totalYellow >= 70) {
-      avatar.innerText = "😃"; // 健康的
+    // 途中の見た目判定
+    if (totalYellow >= 120) {
+      avatar.innerText = "🫃"; // 黄色過剰（太る）
+    } else if (totalYellow < 40 && totalRed < 40 && totalGreen < 40 && currentDay >= 2) {
+      avatar.innerText = "💀"; // 食べなさすぎ
+    } else if (totalYellow < 40 && totalGreen >= 60) {
+      avatar.innerText = "😫"; // 緑に偏りエネルギー（黄）不足
+    } else if (totalGreen >= 60 && totalRed >= 60 && totalYellow >= 60) {
+      avatar.innerText = "😃"; // 順調
     } else {
       avatar.innerText = "🧍"; // 通常
     }
   }
 
-  // 5日終了後の最終判定
+  // 5日間の最終結果判定（細分化）
   function showFinalResult() {
     document.getElementById('meal-stage').innerText = "🎉 5日間のきゅうしょくチェック完了！";
     const bubble = document.getElementById('speech-bubble');
     const avatar = document.getElementById('char-avatar');
 
-    if (totalYellow >= 170) {
-      avatar.innerText = "🦛";
-      bubble.innerText = "【ぽっちゃり化！】黄（エネルギー）の摂りすぎでお腹がポッコリ！野菜もバランスよく食べよう！";
-    } else if (totalYellow < 80 && totalRed < 80 && totalGreen < 80) {
-      avatar.innerText = "💀";
-      bubble.innerText = "【食べなさすぎて激ヤセ…】全然栄養が足りてないよ〜！ガリガリで倒れちゃいそう…！";
-    } else if (totalYellow < 80 && totalGreen >= 100) {
-      avatar.innerText = "😫";
-      bubble.innerText = "【緑ばかりでエネルギー切れ…】野菜はバッチリだけど、ごはん（黄）が足りなくて力が出ない…つかれた〜…";
-    } else if (totalGreen < 50) {
-      avatar.innerText = "🥀";
-      bubble.innerText = "【野菜不足で元気が出ない…】緑（ビタミン）が足りなくて体の調子が上がらないよ〜！";
-    } else if (totalGreen >= 100 && totalRed >= 90 && totalYellow >= 90) {
+    const isPerfect = totalRed === 100 && totalYellow === 100 && totalGreen === 100;
+
+    if (isPerfect) {
       avatar.innerText = "👑";
-      bubble.innerText = "【スーパー健康ボディ！】ごはんも肉も野菜も完璧なバランス！すばらしい！";
+      bubble.innerText = "【最高評価：パーフェクト！】赤・黄・緑すべてのメーターが満タン！完璧な給食マスターだね！";
+    } else if (totalRed >= 100 && totalYellow >= 100 && totalGreen >= 100) {
+      avatar.innerText = "🦸‍♂️";
+      bubble.innerText = "【スーパー健康ボディ！】すべての栄養がバッチリ満タン！完璧なバランスです！";
+    } else if (totalYellow >= 120) {
+      avatar.innerText = "🫃";
+      bubble.innerText = "【黄色メーターオーバー！】ごはんやパン（黄）の食べすぎで太っちゃった！野菜も食べよう！";
+    } else if (totalRed >= 120) {
+      avatar.innerText = "🥩";
+      bubble.innerText = "【赤メーターオーバー！】お肉（赤）ばかりに偏っているよ！お腹の調子を整える緑も必要だよ！";
+    } else if (totalGreen >= 100 && totalYellow < 80) {
+      avatar.innerText = "😫";
+      bubble.innerText = "【エネルギー不足…】緑（野菜）はバッチリだけど、ごはん（黄）が足りなくて力が出ない…つかれた〜";
+    } else if (totalGreen < 60) {
+      avatar.innerText = "🥀";
+      bubble.innerText = "【緑（野菜）不足！】野菜が少なくて体の調子が上がらないよ〜！緑も選ぼう！";
+    } else if (totalRed < 60 || totalYellow < 60 || totalGreen < 60) {
+      avatar.innerText = "💀";
+      bubble.innerText = "【食べなさすぎて栄養不足…】全体的に足りてないよ〜！ガリガリで倒れちゃいそう…！";
     } else {
       avatar.innerText = "😃";
-      bubble.innerText = "まずまずのバランス！しっかり食べて来週もがんばろう！";
+      bubble.innerText = "【惜しい！あと少し！】バランスは良い感じ！次回は全部満タンを目指そう！";
     }
   }
 
