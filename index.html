@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; font-family: 'Helvetica Neue', Arial, sans-serif; }
     body { background-color: #f0f8ff; margin: 0; padding: 20px; display: flex; justify-content: center; }
-    .container { max-width: 850px; width: 100%; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .container { max-width: 900px; width: 100%; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     h1 { text-align: center; color: #333; font-size: 1.5rem; margin-top: 0; }
     .status-header { text-align: center; font-weight: bold; color: #555; margin-bottom: 15px; background: #eccc68; padding: 8px; border-radius: 8px; font-size: 1.1rem; }
     .main-layout { display: flex; flex-wrap: wrap; gap: 20px; }
@@ -23,24 +23,36 @@
     .radio-group input[type="radio"] { display: none; }
     .radio-group input[type="radio"]:checked + .radio-label { border-color: #0984e3; background: #74b9ff; color: white; }
     
-    /* 右側：メーター＆キャラクター */
-    .right-panel { flex: 1; min-width: 250px; background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center; }
-    .meter-container { width: 100%; margin-bottom: 15px; }
-    .meter-label { font-size: 0.85rem; font-weight: bold; margin-bottom: 3px; display: flex; justify-content: space-between; }
-    .meter-bar { height: 18px; width: 100%; background: #e0e0e0; border-radius: 9px; overflow: hidden; margin-bottom: 8px; }
-    .meter-fill { height: 100%; width: 0%; transition: width 0.4s ease-in-out; }
-    .fill-red { background: #ff7675; }
+    /* 右側：縦型メーター＆キャラクター */
+    .right-panel { flex: 1; min-width: 280px; background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center; }
+    
+    /* 縦型メーター全体のレイアウト（横並びで左から黄・赤・緑） */
+    .vertical-meters-wrapper { display: flex; justify-content: space-around; width: 100%; height: 220px; margin-bottom: 15px; padding: 10px 5px; background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; }
+    .meter-col { display: flex; flex-direction: column; align-items: center; width: 30%; height: 100%; }
+    .meter-title { font-size: 0.75rem; font-weight: bold; text-align: center; margin-bottom: 4px; }
+    .meter-value { font-size: 0.75rem; font-weight: bold; margin-top: 4px; color: #333; }
+    
+    /* 縦型バー領域 */
+    .vertical-bar-outer { position: relative; width: 36px; flex: 1; background: #e0e0e0; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+    .vertical-fill { width: 100%; height: 0%; transition: height 0.4s ease-in-out; border-radius: 18px 18px 0 0; }
+    
+    /* 色分け */
     .fill-yellow { background: #fdcb6e; }
+    .fill-red { background: #ff7675; }
     .fill-green { background: #55efc4; }
+
+    /* 100ptの満タンボーダーライン */
+    .border-line-100 { position: absolute; bottom: 50%; left: 0; width: 100%; border-top: 2px dashed #d63031; z-index: 2; pointer-events: none; }
+    .border-label { position: absolute; bottom: calc(50% + 2px); right: 2px; font-size: 0.6rem; color: #d63031; font-weight: bold; background: rgba(255,255,255,0.8); padding: 0 2px; border-radius: 2px; }
 
     /* キャラクター表示部 */
     .char-box { text-align: center; width: 100%; }
-    .char-avatar { font-size: 4.5rem; margin: 5px 0; transition: transform 0.3s; }
-    .speech-bubble { background: #74b9ff; color: white; padding: 12px; border-radius: 12px; font-weight: bold; position: relative; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; text-align: center; }
+    .char-avatar { font-size: 4rem; margin: 2px 0; transition: transform 0.3s; }
+    .speech-bubble { background: #74b9ff; color: white; padding: 10px; border-radius: 12px; font-weight: bold; position: relative; min-height: 70px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; text-align: center; }
     
     .btn-submit { width: 100%; padding: 12px; background: #00b894; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .btn-submit:hover { background: #00876c; }
-    .btn-reset { margin-top: 15px; padding: 6px 12px; background: #b2bec3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .btn-reset { margin-top: 10px; padding: 6px 12px; background: #b2bec3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -61,17 +73,42 @@
       <button id="submit-btn" class="btn-submit" onclick="submitMeal()">けってい！ ➔</button>
     </div>
 
-    <!-- 右側：メーター＆キャラクター -->
+    <!-- 右側：縦型メーター＆キャラクター -->
     <div class="right-panel">
-      <div class="meter-container">
-        <div class="meter-label" style="color:#d63031;"><span>赤（からだをつくる）</span><span id="num-red">0pt / 100pt</span></div>
-        <div class="meter-bar"><div id="meter-red" class="meter-fill fill-red"></div></div>
+      <!-- 縦型メーターエリア（左から 黄 ➔ 赤 ➔ 緑） -->
+      <div class="vertical-meters-wrapper">
+        <!-- 黄色メーター -->
+        <div class="meter-col">
+          <div class="meter-title" style="color:#e17055;">黄<br>(エネルギー)</div>
+          <div class="vertical-bar-outer">
+            <div class="border-line-100"></div>
+            <div class="border-label">100pt</div>
+            <div id="meter-yellow" class="vertical-fill fill-yellow"></div>
+          </div>
+          <div id="num-yellow" class="meter-value">0pt</div>
+        </div>
 
-        <div class="meter-label" style="color:#e17055;"><span>黄（エネルギー）</span><span id="num-yellow">0pt / 100pt</span></div>
-        <div class="meter-bar"><div id="meter-yellow" class="meter-fill fill-yellow"></div></div>
+        <!-- 赤色メーター -->
+        <div class="meter-col">
+          <div class="meter-title" style="color:#d63031;">赤<br>(からだをつくる)</div>
+          <div class="vertical-bar-outer">
+            <div class="border-line-100"></div>
+            <div class="border-label">100pt</div>
+            <div id="meter-red" class="vertical-fill fill-red"></div>
+          </div>
+          <div id="num-red" class="meter-value">0pt</div>
+        </div>
 
-        <div class="meter-label" style="color:#00b894;"><span>緑（ちょうしを整える）</span><span id="num-green">0pt / 100pt</span></div>
-        <div class="meter-bar"><div id="meter-green" class="meter-fill fill-green"></div></div>
+        <!-- 緑色メーター -->
+        <div class="meter-col">
+          <div class="meter-title" style="color:#00b894;">緑<br>(ちょうしを整える)</div>
+          <div class="vertical-bar-outer">
+            <div class="border-line-100"></div>
+            <div class="border-label">100pt</div>
+            <div id="meter-green" class="vertical-fill fill-green"></div>
+          </div>
+          <div id="num-green" class="meter-value">0pt</div>
+        </div>
       </div>
 
       <div class="char-box">
@@ -87,6 +124,68 @@
 </div>
 
 <script>
+  // Web Audio API による効果音生成
+  let audioCtx = null;
+
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+
+  // 効果音再生関数
+  function playSound(type) {
+    initAudio();
+    if (!audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'click') {
+      // ラジオボタン選択音（ピッ）
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, now);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+      osc.start(now);
+      osc.stop(now + 0.1);
+    } else if (type === 'submit') {
+      // 決定音（ピローン）
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+      osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'finish') {
+      // 最終結果ファンファーレ
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      osc.frequency.setValueAtTime(659.25, now + 0.12); // E5
+      osc.frequency.setValueAtTime(783.99, now + 0.24); // G5
+      osc.frequency.setValueAtTime(1046.50, now + 0.36); // C6
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+      osc.start(now);
+      osc.stop(now + 0.7);
+    } else if (type === 'reset') {
+      // リセット音（ポコッ）
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    }
+  }
+
   const schedule = [
     {
       day: "1日目：月ようび",
@@ -157,13 +256,13 @@
       card.innerHTML = `
         <div class="dish-title">${dish.name}</div>
         <div class="radio-group">
-          <input type="radio" id="dish_${idx}_less" name="dish_${idx}" value="10">
+          <input type="radio" id="dish_${idx}_less" name="dish_${idx}" value="10" onchange="playSound('click')">
           <label for="dish_${idx}_less" class="radio-label">へらす・のこす</label>
 
-          <input type="radio" id="dish_${idx}_normal" name="dish_${idx}" value="20" checked>
+          <input type="radio" id="dish_${idx}_normal" name="dish_${idx}" value="20" checked onchange="playSound('click')">
           <label for="dish_${idx}_normal" class="radio-label">ぜんぶ食べる</label>
 
-          <input type="radio" id="dish_${idx}_more" name="dish_${idx}" value="30">
+          <input type="radio" id="dish_${idx}_more" name="dish_${idx}" value="30" onchange="playSound('click')">
           <label for="dish_${idx}_more" class="radio-label">おかわり</label>
         </div>
       `;
@@ -188,39 +287,42 @@
     updateMetersAndAvatar();
 
     if (currentDay < 4) {
+      playSound('submit');
       currentDay++;
       loadDay(currentDay);
     } else {
+      playSound('finish');
       showFinalResult();
     }
   }
 
-  // リアルタイム表示更新
+  // リアルタイム表示更新（最大200pt基準）
   function updateMetersAndAvatar() {
-    const redPct = Math.min(100, Math.round((totalRed / 100) * 100));
-    const yellowPct = Math.min(100, Math.round((totalYellow / 100) * 100));
-    const greenPct = Math.min(100, Math.round((totalGreen / 100) * 100));
+    const maxPt = 200;
+    const yellowPct = Math.min(100, Math.round((totalYellow / maxPt) * 100));
+    const redPct = Math.min(100, Math.round((totalRed / maxPt) * 100));
+    const greenPct = Math.min(100, Math.round((totalGreen / maxPt) * 100));
 
-    document.getElementById('meter-red').style.width = redPct + '%';
-    document.getElementById('meter-yellow').style.width = yellowPct + '%';
-    document.getElementById('meter-green').style.width = greenPct + '%';
+    document.getElementById('meter-yellow').style.height = yellowPct + '%';
+    document.getElementById('meter-red').style.height = redPct + '%';
+    document.getElementById('meter-green').style.height = greenPct + '%';
 
-    document.getElementById('num-red').innerText = `${totalRed}pt / 100pt`;
-    document.getElementById('num-yellow').innerText = `${totalYellow}pt / 100pt`;
-    document.getElementById('num-green').innerText = `${totalGreen}pt / 100pt`;
+    document.getElementById('num-yellow').innerText = `${totalYellow}pt`;
+    document.getElementById('num-red').innerText = `${totalRed}pt`;
+    document.getElementById('num-green').innerText = `${totalGreen}pt`;
 
     const avatar = document.getElementById('char-avatar');
 
     if (totalYellow >= 120) {
-      avatar.innerText = "🫃"; // 黄色おかわり多め
+      avatar.innerText = "🫃"; 
     } else if (totalYellow < 40 && totalRed < 40 && totalGreen < 40 && currentDay >= 2) {
-      avatar.innerText = "💀"; // へらす・のこす多め
+      avatar.innerText = "💀"; 
     } else if (totalYellow < 40 && totalGreen >= 60) {
-      avatar.innerText = "😫"; // 野菜ばかりでエネルギー不足
+      avatar.innerText = "😫"; 
     } else if (totalGreen >= 60 && totalRed >= 60 && totalYellow >= 60) {
-      avatar.innerText = "😃"; // 順調
+      avatar.innerText = "😃"; 
     } else {
-      avatar.innerText = "🧍"; // 通常
+      avatar.innerText = "🧍"; 
     }
   }
 
@@ -237,10 +339,10 @@
 
     if (isPerfect) {
       avatar.innerText = "👑";
-      bubble.innerText = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ100pt満タン！";
+      bubble.innerText = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ100ptライン（満タン）！";
     } else if (totalRed >= 100 && totalYellow >= 100 && totalGreen >= 100) {
       avatar.innerText = "🦸‍♂️";
-      bubble.innerText = "【スーパー健康ボディ！】おかわりもして栄養満タン！パワフルに過ごせるね！";
+      bubble.innerText = "【スーパー健康ボディ！】おかわりもして100ptラインをオーバー！パワフルに過ごせるね！";
     } else if (totalYellow >= 120) {
       avatar.innerText = "🫃";
       bubble.innerText = "【黄色メーターオーバー！】ごはんやパンのおかわりが多くてお腹がポッコリ！おかずも食べよう！";
@@ -258,11 +360,12 @@
       bubble.innerText = "【減らしすぎ・残しすぎ…】全体的に栄養が足りてないよ〜！ガリガリで倒れちゃいそう…！";
     } else {
       avatar.innerText = "😃";
-      bubble.innerText = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部100pt満タンを目指そう！";
+      bubble.innerText = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部100ptラインを目指そう！";
     }
   }
 
   function resetGame() {
+    playSound('reset');
     document.getElementById('submit-btn').style.display = 'block';
     initGame();
   }
