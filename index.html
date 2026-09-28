@@ -84,33 +84,30 @@
         <!-- 1. 黄色メーター -->
         <div class="meter-label" style="color:#e17055;">
           <span>黄（エネルギー）</span>
-          <span id="num-yellow">0pt</span>
         </div>
         <div class="meter-bar-outer">
           <div class="border-line-100"></div>
-          <div class="border-label">満タン 100pt</div>
+          <div class="border-label">満タン</div>
           <div id="meter-yellow" class="meter-fill fill-yellow"></div>
         </div>
 
         <!-- 2. 赤色メーター -->
         <div class="meter-label" style="color:#d63031;">
           <span>赤（からだをつくる）</span>
-          <span id="num-red">0pt</span>
         </div>
         <div class="meter-bar-outer">
           <div class="border-line-100"></div>
-          <div class="border-label">満タン 100pt</div>
+          <div class="border-label">満タン</div>
           <div id="meter-red" class="meter-fill fill-red"></div>
         </div>
 
         <!-- 3. 緑色メーター -->
         <div class="meter-label" style="color:#00b894;">
           <span>緑（ちょうしを整える）</span>
-          <span id="num-green">0pt</span>
         </div>
         <div class="meter-bar-outer">
           <div class="border-line-100"></div>
-          <div class="border-label">満タン 100pt</div>
+          <div class="border-label">満タン</div>
           <div id="meter-green" class="meter-fill fill-green"></div>
         </div>
       </div>
@@ -310,7 +307,7 @@
     }
   }
 
-  // リアルタイム表示更新（120pt基準）
+  // リアルタイム表示更新（120pt基準・ptテキスト非表示）
   function updateMetersAndAvatar() {
     const maxBarPt = 120;
     const yellowPct = Math.round((totalYellow / maxBarPt) * 100);
@@ -320,10 +317,6 @@
     document.getElementById('meter-yellow').style.width = yellowPct + '%';
     document.getElementById('meter-red').style.width = redPct + '%';
     document.getElementById('meter-green').style.width = greenPct + '%';
-
-    document.getElementById('num-yellow').innerText = `${totalYellow}pt`;
-    document.getElementById('num-red').innerText = `${totalRed}pt`;
-    document.getElementById('num-green').innerText = `${totalGreen}pt`;
 
     const avatar = document.getElementById('char-avatar');
 
@@ -349,10 +342,10 @@
 
     if (isPerfect) {
       resultAvatar = "👑";
-      resultMsg = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ満タン100pt！";
+      resultMsg = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ満タン！";
     } else if (totalRed >= 100 && totalYellow >= 100 && totalGreen >= 100) {
       resultAvatar = "🦸‍♂️";
-      resultMsg = "【スーパー健康ボディ！】おかわりもして満タンライン（100pt）を突破！パワフルに過ごせるね！";
+      resultMsg = "【スーパー健康ボディ！】おかわりもして満タンラインを突破！パワフルに過ごせるね！";
     } else if (totalYellow >= 120) {
       resultAvatar = "🫃";
       resultMsg = "【黄色メーターオーバー！】ごはんやパンのおかわりが多くてお腹がポッコリ！おかずも食べよう！";
@@ -370,7 +363,7 @@
       resultMsg = "【減らしすぎ・残しすぎ…】全体的に栄養が足りてないよ〜！ガリガリで倒れちゃいそう…！";
     } else {
       resultAvatar = "😃";
-      resultMsg = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部100pt満タンを目指そう！";
+      resultMsg = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部満タンを目指そう！";
     }
 
     // 全画面モーダルへのセット
