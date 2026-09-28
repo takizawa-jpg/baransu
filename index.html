@@ -7,20 +7,21 @@
   <style>
     * { box-sizing: border-box; font-family: 'Helvetica Neue', Arial, sans-serif; }
     body { background-color: #f0f8ff; margin: 0; padding: 20px; display: flex; justify-content: center; }
-    .container { max-width: 800px; width: 100%; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .container { max-width: 850px; width: 100%; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     h1 { text-align: center; color: #333; font-size: 1.5rem; margin-top: 0; }
-    .status-header { text-align: center; font-weight: bold; color: #555; margin-bottom: 15px; background: #eccc68; padding: 6px; border-radius: 8px; }
+    .status-header { text-align: center; font-weight: bold; color: #555; margin-bottom: 15px; background: #eccc68; padding: 8px; border-radius: 8px; font-size: 1.1rem; }
     .main-layout { display: flex; flex-wrap: wrap; gap: 20px; }
     
-    /* 左側：問題エリア */
-    .left-panel { flex: 1; min-width: 280px; }
-    .tray-image { width: 100%; height: 180px; background-color: #ffeaa7; border: 4px solid #fdcb6e; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .food-tag { font-size: 1.1rem; font-weight: bold; background: white; padding: 6px 16px; border-radius: 20px; margin: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .choices { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .btn-choice { padding: 12px; font-size: 1rem; font-weight: bold; border: 2px solid #ccc; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; text-align: left; }
-    .btn-choice:hover { background: #eef; border-color: #74b9ff; }
-    .btn-skip { background: #f5f5f5; border-color: #bbb; color: #666; }
-    .btn-skip:hover { background: #e0e0e0; border-color: #999; }
+    /* 左側：給食・選択エリア */
+    .left-panel { flex: 1.2; min-width: 300px; }
+    .dishes-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+    .dish-card { background: #fffbe6; border: 2px solid #ffeaa7; padding: 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .dish-title { font-size: 1rem; font-weight: bold; color: #2d3436; }
+    .radio-group { display: flex; justify-content: space-between; gap: 6px; }
+    .radio-label { flex: 1; text-align: center; background: white; border: 2px solid #ddd; padding: 8px 4px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+    .radio-label:hover { border-color: #74b9ff; background: #f0f8ff; }
+    .radio-group input[type="radio"] { display: none; }
+    .radio-group input[type="radio"]:checked + .radio-label { border-color: #0984e3; background: #74b9ff; color: white; }
     
     /* 右側：メーター＆キャラクター */
     .right-panel { flex: 1; min-width: 250px; background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center; }
@@ -35,10 +36,11 @@
     /* キャラクター表示部 */
     .char-box { text-align: center; width: 100%; }
     .char-avatar { font-size: 4.5rem; margin: 5px 0; transition: transform 0.3s; }
-    .speech-bubble { background: #74b9ff; color: white; padding: 12px; border-radius: 12px; font-weight: bold; position: relative; min-height: 70px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; text-align: center; }
+    .speech-bubble { background: #74b9ff; color: white; padding: 12px; border-radius: 12px; font-weight: bold; position: relative; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; text-align: center; }
     
-    .btn-next { margin-top: 15px; width: 100%; padding: 12px; background: #0984e3; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: none; }
-    .btn-reset { margin-top: 10px; padding: 6px 12px; background: #b2bec3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .btn-submit { width: 100%; padding: 12px; background: #00b894; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .btn-submit:hover { background: #00876c; }
+    .btn-reset { margin-top: 15px; padding: 6px 12px; background: #b2bec3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -48,20 +50,18 @@
   <div id="meal-stage" class="status-header">1日目：月ようび</div>
   
   <div class="main-layout">
-    <!-- 左側：問題と選択肢 -->
+    <!-- 左側：お皿ごとの選択肢 -->
     <div class="left-panel">
-      <div id="tray" class="tray-image"></div>
-
-      <p id="question-text" style="font-weight: bold; text-align: center; margin-top: 12px; margin-bottom: 8px;">
-        あと１つ足すなら？
+      <p style="font-weight: bold; text-align: center; margin-top: 0; margin-bottom: 12px;">
+        きょうのきゅうしょくの食べかたをえらぼう！
       </p>
 
-      <div id="choices-box" class="choices"></div>
+      <div id="dishes-container" class="dishes-container"></div>
 
-      <button id="next-btn" class="btn-next" onclick="nextMeal()">つぎの日へ ➔</button>
+      <button id="submit-btn" class="btn-submit" onclick="submitMeal()">けってい！ ➔</button>
     </div>
 
-    <!-- 右側：パラメーターとキャラクター -->
+    <!-- 右側：メーター＆キャラクター -->
     <div class="right-panel">
       <div class="meter-container">
         <div class="meter-label" style="color:#d63031;"><span>赤（からだをつくる）</span><span id="num-red">0pt / 100pt</span></div>
@@ -77,7 +77,7 @@
       <div class="char-box">
         <div id="char-avatar" class="char-avatar">🧍</div>
         <div id="speech-bubble" class="speech-bubble">
-          今週も赤・黄・緑をそろえて元気にすごそう！
+          お皿ごとに食べかたをえらんでね！
         </div>
       </div>
 
@@ -87,150 +87,119 @@
 </div>
 
 <script>
-  const days = ["1日目：月ようび", "2日目：火ようび", "3日目：水ようび", "4日目：木ようび", "5日目：金ようび"];
-
-  // 1回の摂取で20pt加算（5日でちょうど100pt）
-  const menuYellow = [
-    { name: "🍚 ごはん（黄）", color: "yellow", pts: 20, msg: "エネルギー満タン！" },
-    { name: "🍞 パン（黄）", color: "yellow", pts: 20, msg: "ふわふわパンで元気に！" },
-    { name: "🍙 わかめごはん（黄）", color: "yellow", pts: 20, msg: "わかめご飯はおいしいね！" }
-  ];
-
-  const menuRed = [
-    { name: "🍗 からあげ（赤）", color: "red", pts: 20, msg: "からあげで筋肉モリモリ！" },
-    { name: "🐟 やきざかな（赤）", color: "red", pts: 20, msg: "お魚で骨も丈夫に！" },
-    { name: "🍳 たまごやき（赤）", color: "red", pts: 20, msg: "栄養満点のたまごやき！" },
-    { name: "🍤 さけフライ（赤）", color: "red", pts: 20, msg: "サクサクのさけフライ！" },
-    { name: "🥩 ハンバーグ（赤）", color: "red", pts: 20, msg: "みんな大好きハンバーグ！" }
-  ];
-
-  const menuGreen = [
-    { name: "🥬 いそかあえ（緑）", color: "green", pts: 20, msg: "いそかあえで調子が整ったよ！" },
-    { name: "🥗 サラダ（緑）", color: "green", pts: 20, msg: "シャキシャキ野菜でビタミン補給！" },
-    { name: "🥕 やさいスープ（緑）", color: "green", pts: 20, msg: "あったかスープで元気いっぱい！" },
-    { name: "🥣 おみそ汁（緑）", color: "green", pts: 20, msg: "おみそ汁でホッとするね！" },
-    { name: "🥢 ナムル（緑）", color: "green", pts: 20, msg: "ナムルで野菜バリアバッチリ！" },
-    { name: "🪵 きんぴらごぼう（緑）", color: "green", pts: 20, msg: "食物繊維たっぷりのきんぴら！" }
+  const schedule = [
+    {
+      day: "1日目：月ようび",
+      dishes: [
+        { name: "🍚 ごはん", color: "yellow" },
+        { name: "🐟 さばのみそに", color: "red" },
+        { name: "🥬 いそかあえ", color: "green" }
+      ]
+    },
+    {
+      day: "2日目：火ようび",
+      dishes: [
+        { name: "🍞 パン", color: "yellow" },
+        { name: "🍳 オムレツ", color: "red" },
+        { name: "🥗 サラダ", color: "green" }
+      ]
+    },
+    {
+      day: "3日目：水ようび",
+      dishes: [
+        { name: "🍚 ごはん", color: "yellow" },
+        { name: "🍳 たまごやき", color: "red" },
+        { name: "🥔 肉じゃが", color: "green" }
+      ]
+    },
+    {
+      day: "4日目：木ようび",
+      dishes: [
+        { name: "🍙 わかめごはん", color: "yellow" },
+        { name: "🍗 からあげ", color: "red" },
+        { name: "🥢 ナムル", color: "green" }
+      ]
+    },
+    {
+      day: "5日目：金ようび",
+      dishes: [
+        { name: "🍚 ごはん", color: "yellow" },
+        { name: "🐟 ししゃもフライ", color: "red" },
+        { name: "🥬 ごまあえ", color: "green" }
+      ]
+    }
   ];
 
   let currentDay = 0;
   let totalRed = 0;
   let totalYellow = 0;
   let totalGreen = 0;
-  let dailyBases = [];
-
-  function shuffle(array) {
-    return [...array].sort(() => Math.random() - 0.5);
-  }
 
   function initGame() {
     currentDay = 0;
     totalRed = 0;
     totalYellow = 0;
     totalGreen = 0;
-    
-    // 5日分のランダム基本給食（毎回赤・黄・緑の中からランダムに2色が出される）
-    dailyBases = [];
-    for (let i = 0; i < 5; i++) {
-      const yellow = shuffle(menuYellow)[0];
-      const red = shuffle(menuRed)[0];
-      const green = shuffle(menuGreen)[0];
-
-      // 3色のうちランダムに2色を基本給食にする
-      const comboType = i % 3; 
-      let baseItems = [];
-      if (comboType === 0) baseItems = [yellow, red];    // 足りないのは「緑」
-      else if (comboType === 1) baseItems = [yellow, green]; // 足りないのは「赤」
-      else baseItems = [red, green];                       // 足りないのは「黄」
-
-      dailyBases.push(shuffle(baseItems));
-    }
-
+    updateMetersAndAvatar();
     loadDay(currentDay);
   }
 
   function loadDay(dayIndex) {
-    document.getElementById('meal-stage').innerText = days[dayIndex];
+    const dayData = schedule[dayIndex];
+    document.getElementById('meal-stage').innerText = dayData.day;
     
-    const tray = document.getElementById('tray');
-    tray.innerHTML = '<div style="font-size:0.85rem; color:#666; margin-bottom:4px;">【基本きゅうしょく】</div>';
+    const container = document.getElementById('dishes-container');
+    container.innerHTML = '';
 
-    const currentBase = dailyBases[dayIndex];
-    currentBase.forEach(item => {
-      tray.innerHTML += `<div class="food-tag">${item.name}</div>`;
-      addPoints(item.color, item.pts);
+    dayData.dishes.forEach((dish, idx) => {
+      const card = document.createElement('div');
+      card.className = 'dish-card';
+      card.innerHTML = `
+        <div class="dish-title">${dish.name}</div>
+        <div class="radio-group">
+          <input type="radio" id="dish_${idx}_less" name="dish_${idx}" value="10">
+          <label for="dish_${idx}_less" class="radio-label">へらす・のこす</label>
+
+          <input type="radio" id="dish_${idx}_normal" name="dish_${idx}" value="20" checked>
+          <label for="dish_${idx}_normal" class="radio-label">ぜんぶ食べる</label>
+
+          <input type="radio" id="dish_${idx}_more" name="dish_${idx}" value="30">
+          <label for="dish_${idx}_more" class="radio-label">おかわり</label>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.innerText = (dayIndex < 4) ? "けってい！ つぎの日へ ➔" : "けってい！ けっかを見る ➔";
+    document.getElementById('speech-bubble').innerText = "お皿ごとに食べかたをえらんで「けってい！」を押してね！";
+  }
+
+  function submitMeal() {
+    const dayData = schedule[currentDay];
+
+    dayData.dishes.forEach((dish, idx) => {
+      const selectedValue = parseInt(document.querySelector(`input[name="dish_${idx}"]:checked`).value);
+      if (dish.color === 'red') totalRed += selectedValue;
+      if (dish.color === 'yellow') totalYellow += selectedValue;
+      if (dish.color === 'green') totalGreen += selectedValue;
     });
 
     updateMetersAndAvatar();
 
-    const choicesBox = document.getElementById('choices-box');
-    choicesBox.innerHTML = '';
-
-    const optionYellow = shuffle(menuYellow)[0];
-    const optionRed = shuffle(menuRed)[0];
-    const optionGreen = shuffle(menuGreen)[0];
-
-    const currentOptions = shuffle([optionYellow, optionRed, optionGreen]);
-
-    currentOptions.forEach((opt) => {
-      const btn = document.createElement('button');
-      btn.className = 'btn-choice';
-      btn.innerText = opt.name;
-      btn.onclick = () => selectOption(opt);
-      choicesBox.appendChild(btn);
-    });
-
-    // 「食べない」ボタン
-    const skipBtn = document.createElement('button');
-    skipBtn.className = 'btn-choice btn-skip';
-    skipBtn.innerText = '❌ 食べない';
-    skipBtn.onclick = () => selectOption({
-      name: "食べない",
-      color: "none",
-      pts: 0,
-      msg: "何も追加しなかったよ。栄養足りるかな…？"
-    });
-    choicesBox.appendChild(skipBtn);
-
-    document.getElementById('next-btn').style.display = 'none';
-    document.getElementById('choices-box').style.display = 'flex';
-    document.getElementById('question-text').innerText = "あと１つ足すなら？";
-  }
-
-  function addPoints(color, pts) {
-    if (color === 'red') totalRed += pts;
-    if (color === 'yellow') totalYellow += pts;
-    if (color === 'green') totalGreen += pts;
-  }
-
-  function selectOption(selectedOpt) {
-    addPoints(selectedOpt.color, selectedOpt.pts);
-
-    document.getElementById('speech-bubble').innerText = selectedOpt.msg;
-    updateMetersAndAvatar();
-
-    document.getElementById('choices-box').style.display = 'none';
-    document.getElementById('question-text').innerText = "選択完了！";
-
-    const nextBtn = document.getElementById('next-btn');
     if (currentDay < 4) {
-      nextBtn.innerText = "つぎの日へ ➔";
-      nextBtn.style.display = 'block';
+      currentDay++;
+      loadDay(currentDay);
     } else {
       showFinalResult();
     }
   }
 
-  function nextMeal() {
-    currentDay++;
-    loadDay(currentDay);
-  }
-
-  // リアルタイムの体型・状態判定
+  // リアルタイム表示更新
   function updateMetersAndAvatar() {
-    const redPct = Math.min(100, totalRed);
-    const yellowPct = Math.min(100, totalYellow);
-    const greenPct = Math.min(100, totalGreen);
+    const redPct = Math.min(100, Math.round((totalRed / 100) * 100));
+    const yellowPct = Math.min(100, Math.round((totalYellow / 100) * 100));
+    const greenPct = Math.min(100, Math.round((totalGreen / 100) * 100));
 
     document.getElementById('meter-red').style.width = redPct + '%';
     document.getElementById('meter-yellow').style.width = yellowPct + '%';
@@ -242,13 +211,12 @@
 
     const avatar = document.getElementById('char-avatar');
 
-    // 途中の見た目判定
     if (totalYellow >= 120) {
-      avatar.innerText = "🫃"; // 黄色過剰（太る）
+      avatar.innerText = "🫃"; // 黄色おかわり多め
     } else if (totalYellow < 40 && totalRed < 40 && totalGreen < 40 && currentDay >= 2) {
-      avatar.innerText = "💀"; // 食べなさすぎ
+      avatar.innerText = "💀"; // へらす・のこす多め
     } else if (totalYellow < 40 && totalGreen >= 60) {
-      avatar.innerText = "😫"; // 緑に偏りエネルギー（黄）不足
+      avatar.innerText = "😫"; // 野菜ばかりでエネルギー不足
     } else if (totalGreen >= 60 && totalRed >= 60 && totalYellow >= 60) {
       avatar.innerText = "😃"; // 順調
     } else {
@@ -256,9 +224,12 @@
     }
   }
 
-  // 5日間の最終結果判定（細分化）
+  // 5日間の最終評価判定
   function showFinalResult() {
     document.getElementById('meal-stage').innerText = "🎉 5日間のきゅうしょくチェック完了！";
+    document.getElementById('dishes-container').innerHTML = '<div style="text-align:center; padding: 20px; font-weight:bold; color:#00b894; font-size:1.2rem;">5日間のチャレンジおつかれさまでした！</div>';
+    document.getElementById('submit-btn').style.display = 'none';
+
     const bubble = document.getElementById('speech-bubble');
     const avatar = document.getElementById('char-avatar');
 
@@ -266,32 +237,33 @@
 
     if (isPerfect) {
       avatar.innerText = "👑";
-      bubble.innerText = "【最高評価：パーフェクト！】赤・黄・緑すべてのメーターが満タン！完璧な給食マスターだね！";
+      bubble.innerText = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ100pt満タン！";
     } else if (totalRed >= 100 && totalYellow >= 100 && totalGreen >= 100) {
       avatar.innerText = "🦸‍♂️";
-      bubble.innerText = "【スーパー健康ボディ！】すべての栄養がバッチリ満タン！完璧なバランスです！";
+      bubble.innerText = "【スーパー健康ボディ！】おかわりもして栄養満タン！パワフルに過ごせるね！";
     } else if (totalYellow >= 120) {
       avatar.innerText = "🫃";
-      bubble.innerText = "【黄色メーターオーバー！】ごはんやパン（黄）の食べすぎで太っちゃった！野菜も食べよう！";
+      bubble.innerText = "【黄色メーターオーバー！】ごはんやパンのおかわりが多くてお腹がポッコリ！おかずも食べよう！";
     } else if (totalRed >= 120) {
       avatar.innerText = "🥩";
-      bubble.innerText = "【赤メーターオーバー！】お肉（赤）ばかりに偏っているよ！お腹の調子を整える緑も必要だよ！";
+      bubble.innerText = "【赤メーターオーバー！】お肉やお魚のおかわりが多いよ！野菜（緑）もバランスよく食べよう！";
     } else if (totalGreen >= 100 && totalYellow < 80) {
       avatar.innerText = "😫";
-      bubble.innerText = "【エネルギー不足…】緑（野菜）はバッチリだけど、ごはん（黄）が足りなくて力が出ない…つかれた〜";
+      bubble.innerText = "【エネルギー不足…】野菜はバッチリ食べたけど、ごはんを残しぎみで力が出ない…つかれた〜";
     } else if (totalGreen < 60) {
       avatar.innerText = "🥀";
-      bubble.innerText = "【緑（野菜）不足！】野菜が少なくて体の調子が上がらないよ〜！緑も選ぼう！";
+      bubble.innerText = "【緑（野菜）不足！】野菜を残すことが多かったみたい…体の調子が上がらないよ〜！";
     } else if (totalRed < 60 || totalYellow < 60 || totalGreen < 60) {
       avatar.innerText = "💀";
-      bubble.innerText = "【食べなさすぎて栄養不足…】全体的に足りてないよ〜！ガリガリで倒れちゃいそう…！";
+      bubble.innerText = "【減らしすぎ・残しすぎ…】全体的に栄養が足りてないよ〜！ガリガリで倒れちゃいそう…！";
     } else {
       avatar.innerText = "😃";
-      bubble.innerText = "【惜しい！あと少し！】バランスは良い感じ！次回は全部満タンを目指そう！";
+      bubble.innerText = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部100pt満タンを目指そう！";
     }
   }
 
   function resetGame() {
+    document.getElementById('submit-btn').style.display = 'block';
     initGame();
   }
 
