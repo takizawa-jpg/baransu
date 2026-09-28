@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; font-family: 'Helvetica Neue', Arial, sans-serif; }
     body { background-color: #f0f8ff; margin: 0; padding: 20px; display: flex; justify-content: center; }
-    .container { max-width: 850px; width: 100%; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .container { max-width: 850px; width: 100%; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
     h1 { text-align: center; color: #333; font-size: 1.5rem; margin-top: 0; }
     .status-header { text-align: center; font-weight: bold; color: #555; margin-bottom: 15px; background: #eccc68; padding: 8px; border-radius: 8px; font-size: 1.1rem; }
     .main-layout { display: flex; flex-wrap: wrap; gap: 20px; }
@@ -28,7 +28,7 @@
     .meter-container { width: 100%; margin-bottom: 15px; }
     .meter-label { font-size: 0.85rem; font-weight: bold; margin-bottom: 3px; display: flex; justify-content: space-between; }
     
-    /* 横型メーター領域（はみ出し許可） */
+    /* 横型メーター領域 */
     .meter-bar-outer { position: relative; height: 22px; width: 100%; background: #e0e0e0; border-radius: 11px; margin-bottom: 12px; overflow: visible; }
     .meter-fill { height: 100%; width: 0%; transition: width 0.4s ease-in-out; border-radius: 11px; }
     
@@ -49,6 +49,15 @@
     .btn-submit { width: 100%; padding: 12px; background: #00b894; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .btn-submit:hover { background: #00876c; }
     .btn-reset { margin-top: 10px; padding: 6px 12px; background: #b2bec3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+
+    /* 🌟 全画面評価モーダル */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+    .modal-content { background: white; padding: 25px; border-radius: 20px; max-width: 600px; width: 100%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 1.5rem; font-weight: bold; color: #333; margin-top: 0; margin-bottom: 10px; }
+    .modal-avatar { font-size: 5.5rem; margin: 10px 0; }
+    .modal-bubble { background: #74b9ff; color: white; padding: 15px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+    .modal-btn { padding: 12px 24px; background: #0984e3; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+    .modal-btn:hover { background: #076bba; }
   </style>
 </head>
 <body>
@@ -69,13 +78,13 @@
       <button id="submit-btn" class="btn-submit" onclick="submitMeal()">けってい！ ➔</button>
     </div>
 
-    <!-- 右側：横型メーター＆キャラクター（上から 黄 ➔ 赤 ➔ 緑） -->
+    <!-- 右側：横型メーター＆キャラクター -->
     <div class="right-panel">
-      <div class="meter-container">
-        <!-- 1. 黄色メーター（エネルギー） -->
+      <div id="meter-box" class="meter-container">
+        <!-- 1. 黄色メーター -->
         <div class="meter-label" style="color:#e17055;">
           <span>黄（エネルギー）</span>
-          <span id="num-yellow">0pt / 120pt</span>
+          <span id="num-yellow">0pt</span>
         </div>
         <div class="meter-bar-outer">
           <div class="border-line-100"></div>
@@ -83,10 +92,10 @@
           <div id="meter-yellow" class="meter-fill fill-yellow"></div>
         </div>
 
-        <!-- 2. 赤色メーター（からだをつくる） -->
+        <!-- 2. 赤色メーター -->
         <div class="meter-label" style="color:#d63031;">
           <span>赤（からだをつくる）</span>
-          <span id="num-red">0pt / 120pt</span>
+          <span id="num-red">0pt</span>
         </div>
         <div class="meter-bar-outer">
           <div class="border-line-100"></div>
@@ -94,10 +103,10 @@
           <div id="meter-red" class="meter-fill fill-red"></div>
         </div>
 
-        <!-- 3. 緑色メーター（ちょうしを整える） -->
+        <!-- 3. 緑色メーター -->
         <div class="meter-label" style="color:#00b894;">
           <span>緑（ちょうしを整える）</span>
-          <span id="num-green">0pt / 120pt</span>
+          <span id="num-green">0pt</span>
         </div>
         <div class="meter-bar-outer">
           <div class="border-line-100"></div>
@@ -115,6 +124,20 @@
 
       <button class="btn-reset" onclick="resetGame()">新しくやりなおす</button>
     </div>
+  </div>
+</div>
+
+<!-- 🌟 5日分完了時の全画面評価画面 -->
+<div id="final-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-title">🎉 5日間の総合けっか 🎉</div>
+    <div id="modal-avatar" class="modal-avatar">👑</div>
+    <div id="modal-bubble" class="modal-bubble">コメントがここに入ります</div>
+    
+    <div style="font-weight: bold; margin-bottom: 8px; color: #555; text-align: left;">【最終えいようメーター】</div>
+    <div id="modal-meters-clone"></div>
+
+    <button class="modal-btn" onclick="resetGame()">もう一度チャレンジする</button>
   </div>
 </div>
 
@@ -148,19 +171,19 @@
       osc.stop(now + 0.1);
     } else if (type === 'submit') {
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(523.25, now); // C5
-      osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-      osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+      osc.frequency.setValueAtTime(523.25, now); 
+      osc.frequency.setValueAtTime(659.25, now + 0.08); 
+      osc.frequency.setValueAtTime(783.99, now + 0.16); 
       gain.gain.setValueAtTime(0.2, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
       osc.start(now);
       osc.stop(now + 0.35);
     } else if (type === 'finish') {
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, now); // C5
-      osc.frequency.setValueAtTime(659.25, now + 0.12); // E5
-      osc.frequency.setValueAtTime(783.99, now + 0.24); // G5
-      osc.frequency.setValueAtTime(1046.50, now + 0.36); // C6
+      osc.frequency.setValueAtTime(523.25, now); 
+      osc.frequency.setValueAtTime(659.25, now + 0.12); 
+      osc.frequency.setValueAtTime(783.99, now + 0.24); 
+      osc.frequency.setValueAtTime(1046.50, now + 0.36); 
       gain.gain.setValueAtTime(0.25, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
       osc.start(now);
@@ -229,6 +252,7 @@
     totalRed = 0;
     totalYellow = 0;
     totalGreen = 0;
+    document.getElementById('final-modal').style.display = 'none';
     updateMetersAndAvatar();
     loadDay(currentDay);
   }
@@ -288,7 +312,7 @@
 
   // リアルタイム表示更新（120pt基準）
   function updateMetersAndAvatar() {
-    const maxBarPt = 120; // メーター全体の長さ＝120pt
+    const maxBarPt = 120;
     const yellowPct = Math.round((totalYellow / maxBarPt) * 100);
     const redPct = Math.round((totalRed / maxBarPt) * 100);
     const greenPct = Math.round((totalGreen / maxBarPt) * 100);
@@ -297,9 +321,9 @@
     document.getElementById('meter-red').style.width = redPct + '%';
     document.getElementById('meter-green').style.width = greenPct + '%';
 
-    document.getElementById('num-yellow').innerText = `${totalYellow}pt / 120pt`;
-    document.getElementById('num-red').innerText = `${totalRed}pt / 120pt`;
-    document.getElementById('num-green').innerText = `${totalGreen}pt / 120pt`;
+    document.getElementById('num-yellow').innerText = `${totalYellow}pt`;
+    document.getElementById('num-red').innerText = `${totalRed}pt`;
+    document.getElementById('num-green').innerText = `${totalGreen}pt`;
 
     const avatar = document.getElementById('char-avatar');
 
@@ -316,47 +340,55 @@
     }
   }
 
-  // 5日間の最終評価判定
+  // 5日間の最終評価判定（全画面モーダル表示）
   function showFinalResult() {
-    document.getElementById('meal-stage').innerText = "🎉 5日間のきゅうしょくチェック完了！";
-    document.getElementById('dishes-container').innerHTML = '<div style="text-align:center; padding: 20px; font-weight:bold; color:#00b894; font-size:1.2rem;">5日間のチャレンジおつかれさまでした！</div>';
-    document.getElementById('submit-btn').style.display = 'none';
-
-    const bubble = document.getElementById('speech-bubble');
-    const avatar = document.getElementById('char-avatar');
+    let resultAvatar = "😃";
+    let resultMsg = "";
 
     const isPerfect = totalRed === 100 && totalYellow === 100 && totalGreen === 100;
 
     if (isPerfect) {
-      avatar.innerText = "👑";
-      bubble.innerText = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ満タン100pt！";
+      resultAvatar = "👑";
+      resultMsg = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ満タン100pt！";
     } else if (totalRed >= 100 && totalYellow >= 100 && totalGreen >= 100) {
-      avatar.innerText = "🦸‍♂️";
-      bubble.innerText = "【スーパー健康ボディ！】おかわりもして満タンライン（100pt）を突破！パワフルに過ごせるね！";
+      resultAvatar = "🦸‍♂️";
+      resultMsg = "【スーパー健康ボディ！】おかわりもして満タンライン（100pt）を突破！パワフルに過ごせるね！";
     } else if (totalYellow >= 120) {
-      avatar.innerText = "🫃";
-      bubble.innerText = "【黄色メーターオーバー！】ごはんやパンのおかわりが多くてお腹がポッコリ！おかずも食べよう！";
+      resultAvatar = "🫃";
+      resultMsg = "【黄色メーターオーバー！】ごはんやパンのおかわりが多くてお腹がポッコリ！おかずも食べよう！";
     } else if (totalRed >= 120) {
-      avatar.innerText = "🥩";
-      bubble.innerText = "【赤メーターオーバー！】お肉やお魚のおかわりが多いよ！野菜（緑）もバランスよく食べよう！";
+      resultAvatar = "🥩";
+      resultMsg = "【赤メーターオーバー！】お肉やお魚のおかわりが多いよ！野菜（緑）もバランスよく食べよう！";
     } else if (totalGreen >= 100 && totalYellow < 80) {
-      avatar.innerText = "😫";
-      bubble.innerText = "【エネルギー不足…】野菜はバッチリ食べたけど、ごはんを残しぎみで力が出ない…つかれた〜";
+      resultAvatar = "😫";
+      resultMsg = "【エネルギー不足…】野菜はバッチリ食べたけど、ごはんを残しぎみで力が出ない…つかれた〜";
     } else if (totalGreen < 60) {
-      avatar.innerText = "🥀";
-      bubble.innerText = "【緑（野菜）不足！】野菜を残すことが多かったみたい…体の調子が上がらないよ〜！";
+      resultAvatar = "🥀";
+      resultMsg = "【緑（野菜）不足！】野菜を残すことが多かったみたい…体の調子が上がらないよ〜！";
     } else if (totalRed < 60 || totalYellow < 60 || totalGreen < 60) {
-      avatar.innerText = "💀";
-      bubble.innerText = "【減らしすぎ・残しすぎ…】全体的に栄養が足りてないよ〜！ガリガリで倒れちゃいそう…！";
+      resultAvatar = "💀";
+      resultMsg = "【減らしすぎ・残しすぎ…】全体的に栄養が足りてないよ〜！ガリガリで倒れちゃいそう…！";
     } else {
-      avatar.innerText = "😃";
-      bubble.innerText = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部100pt満タンを目指そう！";
+      resultAvatar = "😃";
+      resultMsg = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部100pt満タンを目指そう！";
     }
+
+    // 全画面モーダルへのセット
+    document.getElementById('modal-avatar').innerText = resultAvatar;
+    document.getElementById('modal-bubble').innerText = resultMsg;
+    
+    // メーターの複製をモーダル内にセット
+    const meterClone = document.getElementById('meter-box').cloneNode(true);
+    const cloneContainer = document.getElementById('modal-meters-clone');
+    cloneContainer.innerHTML = '';
+    cloneContainer.appendChild(meterClone);
+
+    // モーダル表示
+    document.getElementById('final-modal').style.display = 'flex';
   }
 
   function resetGame() {
     playSound('reset');
-    document.getElementById('submit-btn').style.display = 'block';
     initGame();
   }
 
