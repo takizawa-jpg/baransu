@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; font-family: 'Helvetica Neue', Arial, sans-serif; }
     body { background-color: #f0f8ff; margin: 0; padding: 20px; display: flex; justify-content: center; }
-    .container { max-width: 900px; width: 100%; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .container { max-width: 850px; width: 100%; background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     h1 { text-align: center; color: #333; font-size: 1.5rem; margin-top: 0; }
     .status-header { text-align: center; font-weight: bold; color: #555; margin-bottom: 15px; background: #eccc68; padding: 8px; border-radius: 8px; font-size: 1.1rem; }
     .main-layout { display: flex; flex-wrap: wrap; gap: 20px; }
@@ -23,27 +23,23 @@
     .radio-group input[type="radio"] { display: none; }
     .radio-group input[type="radio"]:checked + .radio-label { border-color: #0984e3; background: #74b9ff; color: white; }
     
-    /* 右側：縦型メーター＆キャラクター */
+    /* 右側：横型メーター＆キャラクター */
     .right-panel { flex: 1; min-width: 280px; background: #fafafa; padding: 15px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center; }
+    .meter-container { width: 100%; margin-bottom: 15px; }
+    .meter-label { font-size: 0.85rem; font-weight: bold; margin-bottom: 3px; display: flex; justify-content: space-between; }
     
-    /* 縦型メーター全体のレイアウト（横並びで左から黄・赤・緑） */
-    .vertical-meters-wrapper { display: flex; justify-content: space-around; width: 100%; height: 220px; margin-bottom: 15px; padding: 10px 5px; background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; }
-    .meter-col { display: flex; flex-direction: column; align-items: center; width: 30%; height: 100%; }
-    .meter-title { font-size: 0.75rem; font-weight: bold; text-align: center; margin-bottom: 4px; }
-    .meter-value { font-size: 0.75rem; font-weight: bold; margin-top: 4px; color: #333; }
-    
-    /* 縦型バー領域 */
-    .vertical-bar-outer { position: relative; width: 36px; flex: 1; background: #e0e0e0; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
-    .vertical-fill { width: 100%; height: 0%; transition: height 0.4s ease-in-out; border-radius: 18px 18px 0 0; }
+    /* 横型メーター領域（はみ出し許可） */
+    .meter-bar-outer { position: relative; height: 22px; width: 100%; background: #e0e0e0; border-radius: 11px; margin-bottom: 12px; overflow: visible; }
+    .meter-fill { height: 100%; width: 0%; transition: width 0.4s ease-in-out; border-radius: 11px; }
     
     /* 色分け */
     .fill-yellow { background: #fdcb6e; }
     .fill-red { background: #ff7675; }
     .fill-green { background: #55efc4; }
 
-    /* 100ptの満タンボーダーライン */
-    .border-line-100 { position: absolute; bottom: 50%; left: 0; width: 100%; border-top: 2px dashed #d63031; z-index: 2; pointer-events: none; }
-    .border-label { position: absolute; bottom: calc(50% + 2px); right: 2px; font-size: 0.6rem; color: #d63031; font-weight: bold; background: rgba(255,255,255,0.8); padding: 0 2px; border-radius: 2px; }
+    /* 100ptの満タンボーダーライン（100pt / 120pt = 83.33% の位置） */
+    .border-line-100 { position: absolute; left: 83.33%; top: 0; height: 100%; border-left: 2px dashed #d63031; z-index: 2; pointer-events: none; }
+    .border-label { position: absolute; left: 83.33%; top: -14px; transform: translateX(-50%); font-size: 0.65rem; color: #d63031; font-weight: bold; background: rgba(255,255,255,0.9); padding: 0 4px; border-radius: 3px; white-space: nowrap; }
 
     /* キャラクター表示部 */
     .char-box { text-align: center; width: 100%; }
@@ -73,41 +69,40 @@
       <button id="submit-btn" class="btn-submit" onclick="submitMeal()">けってい！ ➔</button>
     </div>
 
-    <!-- 右側：縦型メーター＆キャラクター -->
+    <!-- 右側：横型メーター＆キャラクター（上から 黄 ➔ 赤 ➔ 緑） -->
     <div class="right-panel">
-      <!-- 縦型メーターエリア（左から 黄 ➔ 赤 ➔ 緑） -->
-      <div class="vertical-meters-wrapper">
-        <!-- 黄色メーター -->
-        <div class="meter-col">
-          <div class="meter-title" style="color:#e17055;">黄<br>(エネルギー)</div>
-          <div class="vertical-bar-outer">
-            <div class="border-line-100"></div>
-            <div class="border-label">100pt</div>
-            <div id="meter-yellow" class="vertical-fill fill-yellow"></div>
-          </div>
-          <div id="num-yellow" class="meter-value">0pt</div>
+      <div class="meter-container">
+        <!-- 1. 黄色メーター（エネルギー） -->
+        <div class="meter-label" style="color:#e17055;">
+          <span>黄（エネルギー）</span>
+          <span id="num-yellow">0pt / 120pt</span>
+        </div>
+        <div class="meter-bar-outer">
+          <div class="border-line-100"></div>
+          <div class="border-label">満タン 100pt</div>
+          <div id="meter-yellow" class="meter-fill fill-yellow"></div>
         </div>
 
-        <!-- 赤色メーター -->
-        <div class="meter-col">
-          <div class="meter-title" style="color:#d63031;">赤<br>(からだをつくる)</div>
-          <div class="vertical-bar-outer">
-            <div class="border-line-100"></div>
-            <div class="border-label">100pt</div>
-            <div id="meter-red" class="vertical-fill fill-red"></div>
-          </div>
-          <div id="num-red" class="meter-value">0pt</div>
+        <!-- 2. 赤色メーター（からだをつくる） -->
+        <div class="meter-label" style="color:#d63031;">
+          <span>赤（からだをつくる）</span>
+          <span id="num-red">0pt / 120pt</span>
+        </div>
+        <div class="meter-bar-outer">
+          <div class="border-line-100"></div>
+          <div class="border-label">満タン 100pt</div>
+          <div id="meter-red" class="meter-fill fill-red"></div>
         </div>
 
-        <!-- 緑色メーター -->
-        <div class="meter-col">
-          <div class="meter-title" style="color:#00b894;">緑<br>(ちょうしを整える)</div>
-          <div class="vertical-bar-outer">
-            <div class="border-line-100"></div>
-            <div class="border-label">100pt</div>
-            <div id="meter-green" class="vertical-fill fill-green"></div>
-          </div>
-          <div id="num-green" class="meter-value">0pt</div>
+        <!-- 3. 緑色メーター（ちょうしを整える） -->
+        <div class="meter-label" style="color:#00b894;">
+          <span>緑（ちょうしを整える）</span>
+          <span id="num-green">0pt / 120pt</span>
+        </div>
+        <div class="meter-bar-outer">
+          <div class="border-line-100"></div>
+          <div class="border-label">満タン 100pt</div>
+          <div id="meter-green" class="meter-fill fill-green"></div>
         </div>
       </div>
 
@@ -133,7 +128,6 @@
     }
   }
 
-  // 効果音再生関数
   function playSound(type) {
     initAudio();
     if (!audioCtx) return;
@@ -146,7 +140,6 @@
     const now = audioCtx.currentTime;
 
     if (type === 'click') {
-      // ラジオボタン選択音（ピッ）
       osc.type = 'sine';
       osc.frequency.setValueAtTime(600, now);
       gain.gain.setValueAtTime(0.1, now);
@@ -154,7 +147,6 @@
       osc.start(now);
       osc.stop(now + 0.1);
     } else if (type === 'submit') {
-      // 決定音（ピローン）
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(523.25, now); // C5
       osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
@@ -164,7 +156,6 @@
       osc.start(now);
       osc.stop(now + 0.35);
     } else if (type === 'finish') {
-      // 最終結果ファンファーレ
       osc.type = 'sine';
       osc.frequency.setValueAtTime(523.25, now); // C5
       osc.frequency.setValueAtTime(659.25, now + 0.12); // E5
@@ -175,7 +166,6 @@
       osc.start(now);
       osc.stop(now + 0.7);
     } else if (type === 'reset') {
-      // リセット音（ポコッ）
       osc.type = 'sine';
       osc.frequency.setValueAtTime(400, now);
       osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
@@ -296,20 +286,20 @@
     }
   }
 
-  // リアルタイム表示更新（最大200pt基準）
+  // リアルタイム表示更新（120pt基準）
   function updateMetersAndAvatar() {
-    const maxPt = 200;
-    const yellowPct = Math.min(100, Math.round((totalYellow / maxPt) * 100));
-    const redPct = Math.min(100, Math.round((totalRed / maxPt) * 100));
-    const greenPct = Math.min(100, Math.round((totalGreen / maxPt) * 100));
+    const maxBarPt = 120; // メーター全体の長さ＝120pt
+    const yellowPct = Math.round((totalYellow / maxBarPt) * 100);
+    const redPct = Math.round((totalRed / maxBarPt) * 100);
+    const greenPct = Math.round((totalGreen / maxBarPt) * 100);
 
-    document.getElementById('meter-yellow').style.height = yellowPct + '%';
-    document.getElementById('meter-red').style.height = redPct + '%';
-    document.getElementById('meter-green').style.height = greenPct + '%';
+    document.getElementById('meter-yellow').style.width = yellowPct + '%';
+    document.getElementById('meter-red').style.width = redPct + '%';
+    document.getElementById('meter-green').style.width = greenPct + '%';
 
-    document.getElementById('num-yellow').innerText = `${totalYellow}pt`;
-    document.getElementById('num-red').innerText = `${totalRed}pt`;
-    document.getElementById('num-green').innerText = `${totalGreen}pt`;
+    document.getElementById('num-yellow').innerText = `${totalYellow}pt / 120pt`;
+    document.getElementById('num-red').innerText = `${totalRed}pt / 120pt`;
+    document.getElementById('num-green').innerText = `${totalGreen}pt / 120pt`;
 
     const avatar = document.getElementById('char-avatar');
 
@@ -339,10 +329,10 @@
 
     if (isPerfect) {
       avatar.innerText = "👑";
-      bubble.innerText = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ100ptライン（満タン）！";
+      bubble.innerText = "【最高評価：パーフェクト！】毎日残さずぜんぶ食べたね！すべてのメーターがピッタリ満タン100pt！";
     } else if (totalRed >= 100 && totalYellow >= 100 && totalGreen >= 100) {
       avatar.innerText = "🦸‍♂️";
-      bubble.innerText = "【スーパー健康ボディ！】おかわりもして100ptラインをオーバー！パワフルに過ごせるね！";
+      bubble.innerText = "【スーパー健康ボディ！】おかわりもして満タンライン（100pt）を突破！パワフルに過ごせるね！";
     } else if (totalYellow >= 120) {
       avatar.innerText = "🫃";
       bubble.innerText = "【黄色メーターオーバー！】ごはんやパンのおかわりが多くてお腹がポッコリ！おかずも食べよう！";
@@ -360,7 +350,7 @@
       bubble.innerText = "【減らしすぎ・残しすぎ…】全体的に栄養が足りてないよ〜！ガリガリで倒れちゃいそう…！";
     } else {
       avatar.innerText = "😃";
-      bubble.innerText = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部100ptラインを目指そう！";
+      bubble.innerText = "【惜しい！あと少し！】残さず食べる工夫をして、次回は全部100pt満タンを目指そう！";
     }
   }
 
