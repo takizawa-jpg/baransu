@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>なにが たりない？ 栄養バランスチェック</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    body {
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 1.5rem;
+      margin-top: 0;
+    }
+    .main-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    /* 左側：問題エリア */
+    .left-panel {
+      flex: 1;
+      min-width: 280px;
+    }
+    .tray-image {
+      width: 100%;
+      height: 200px;
+      background-color: #ffeaa7;
+      border: 4px solid #fdcb6e;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .food-tag {
+      font-size: 1.2rem;
+      font-weight: bold;
+      background: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .choices {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn-choice {
+      padding: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-choice:hover {
+      background: #eef;
+      border-color: #74b9ff;
+    }
+    /* 右側：メーター＆キャラクター */
+    .right-panel {
+      flex: 1;
+      min-width: 250px;
+      background: #fafafa;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .meter-container {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    .meter-label {
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .meter-bar {
+      height: 20px;
+      width: 100%;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease-in-out;
+    }
+    .fill-red { background: #ff7675; }
+    .fill-yellow { background: #fdcb6e; }
+    .fill-green { background: #55efc4; }
+
+    /* キャラクター表示部 */
+    .char-box {
+      text-align: center;
+      width: 100%;
+    }
+    .char-avatar {
+      font-size: 4rem;
+      margin: 10px 0;
+      transition: transform 0.3s;
+    }
+    .speech-bubble {
+      background: #74b9ff;
+      color: white;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      position: relative;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-reset {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background: #b2bec3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🍚 今日のおぼん：なにを プラスする？ 🥦</h1>
+  
+  <div class="main-layout">
+    <!-- 左側：問題と選択肢 -->
+    <div class="left-panel">
+      <div class="tray-image">
+        <div style="font-size:0.9rem; color:#666; margin-bottom:8px;">【いまのおぼん】</div>
+        <div class="food-tag">🍚 ごはん（黄）</div>
+        <div class="food-tag">🍗 からあげ（赤）</div>
+      </div>
+
+      <p style="font-weight: bold; text-align: center; margin-top: 15px;">
+        このおぼんに「あと１つ」足すならどれ？
+      </p>
+
+      <div class="choices">
+        <button class="btn-choice" onclick="selectFood('green')">🥦 野菜サラダ（緑）</button>
+        <button class="btn-choice" onclick="selectFood('red')">ハンバーグ（赤）</button>
+        <button class="btn-choice" onclick="selectFood('yellow')">🍟 ポテトフライ（黄）</button>
+      </div>
+    </div>
+
+    <!-- 右側：パラメーターとキャラクター -->
+    <div class="right-panel">
+      <div class="meter-container">
+        <div class="meter-label" style="color:#d63031;">赤（からだをつくる）</div>
+        <div class="meter-bar"><div id="meter-red" class="meter-fill fill-red" style="width: 40%;"></div></div>
+
+        <div class="meter-label" style="color:#e17055;">黄（うごくエネルギー）</div>
+        <div class="meter-bar"><div id="meter-yellow" class="meter-fill fill-yellow" style="width: 40%;"></div></div>
+
+        <div class="meter-label" style="color:#00b894;">緑（ちょうしを整える）</div>
+        <div class="meter-bar"><div id="meter-green" class="meter-fill fill-green" style="width: 0%;"></div></div>
+      </div>
+
+      <div class="char-box">
+        <div id="char-avatar" class="char-avatar">😮</div>
+        <div id="speech-bubble" class="speech-bubble">
+          なにを追加しようかな？ えらんでみてね！
+        </div>
+      </div>
+
+      <button class="btn-reset" onclick="resetGame()">やりなおす</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function selectFood(type) {
+    const meterRed = document.getElementById('meter-red');
+    const meterYellow = document.getElementById('meter-yellow');
+    const meterGreen = document.getElementById('meter-green');
+    const avatar = document.getElementById('char-avatar');
+    const speech = document.getElementById('speech-bubble');
+
+    if (type === 'green') {
+      // 野菜を選んだ（正解・バランス◎）
+      meterRed.style.width = '40%';
+      meterYellow.style.width = '40%';
+      meterGreen.style.width = '80%';
+      avatar.innerText = '🤩';
+      speech.innerText = '「緑が入って完璧！ からだがスッキリしてドッジボールで大活躍できそう！」';
+      speech.style.background = '#00b894';
+    } else if (type === 'red') {
+      // 肉を選んだ（赤が限界突破）
+      meterRed.style.width = '95%';
+      meterYellow.style.width = '40%';
+      meterGreen.style.width = '0%';
+      avatar.innerText = '🥵';
+      speech.innerText = '「お肉ばっかりでパワーは出そうだけど…なんだか体が重くてお腹が張ってきた…」';
+      speech.style.background = '#d63031';
+    } else if (type === 'yellow') {
+      // ポテトを選んだ（黄が限界突破）
+      meterYellow.style.width = '95%';
+      meterRed.style.width = '40%';
+      meterGreen.style.width = '0%';
+      avatar.innerText = '😴';
+      speech.innerText = '「お腹はいっぱいになったけど…すぐにお腹が空きそう。なんだか眠くなってきたぞ…」';
+      speech.style.background = '#fdcb6e';
+    }
+  }
+
+  function resetGame() {
+    document.getElementById('meter-red').style.width = '40%';
+    document.getElementById('meter-yellow').style.width = '40%';
+    document.getElementById('meter-green').style.width = '0%';
+    document.getElementById('char-avatar').innerText = '😮';
+    const speech = document.getElementById('speech-bubble');
+    speech.innerText = 'なにを追加しようかな？ えらんでみてね！';
+    speech.style.background = '#74b9ff';
+  }
+</script>
+
+</body>
+</html>
